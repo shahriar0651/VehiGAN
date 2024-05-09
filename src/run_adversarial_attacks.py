@@ -228,6 +228,5 @@ if __name__ == '__main__':
 To run:
 
 python run_adversarial_attacks.py version=december_dummy dataset=testing dataset.run_type=unit fast_load=True device=cpu
-
 nohup python run_adversarial_attacks.py version=december_dummy dataset=testing dataset.run_type=unit fast_load=True device=cpu >/dev/null 2>&1 &
 """

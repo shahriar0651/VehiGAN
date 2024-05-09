@@ -21,7 +21,6 @@ def save_and_load_normal_model(cfg, model_id, model):
     loaded_model = load_model(model_dir)
     return loaded_model
 
-
 # Initialize loggers
 def inference_time_normal(cfg, model_id, model, dummy_input):
     model = save_and_load_normal_model(cfg, model_id, model)
@@ -45,10 +44,6 @@ def inference_time_normal(cfg, model_id, model, dummy_input):
 def save_and_load_tflite_model(cfg, model_id, model):
     converter = tf.lite.TFLiteConverter.from_keras_model(model)
     tflite_model = converter.convert()
-    # Trying different quant
-    # converter.optimizations = [tf.lite.Optimize.DEFAULT]
-    # converter.target_spec.supported_types = [tf.float16]
-    # -----------------------
     model_dir = Path(f"{cfg.models_dir}/scalability_test/tflite_{model_id}.tflite")
     model_dir.parent.mkdir(parents=True, exist_ok=True)
     with open(model_dir, "wb") as f:
@@ -109,8 +104,6 @@ def model_scalability_pipeline(cfg: DictConfig) -> None:
     if not cfg.scaler_dir.exists():
         os.makedirs(cfg.scaler_dir)
 
-    # inferenceLatencyNormal = []
-    # inferenceLatencyLite = []
     # Run model training for WGAN or Autoencoder
     if cfg.models.model_type != "baselines":
         # Running for different window size
@@ -148,34 +141,25 @@ def model_scalability_pipeline(cfg: DictConfig) -> None:
                 dummy_input = np.random.randn(1, 10, 12, 1).astype(np.float32)
                 mean_syn, _ = inference_time_normal(cfg, model_id, model, dummy_input)
                 
-                # inferenceLatencyNormal.append(mean_syn)
                 inference_time_model = pd.DataFrame([])
                 inference_time_model['Model Type'] = [f'Standard ({device})']
                 inference_time_model['Inference Time'] = [mean_syn]
                 inference_time_model["Model"] = [model_id]
-                # inference_time_model["Device"] = "Computer"
-                # inference_time_model["GPU"] = [usingGPU]
-                # inference_time_model["GPU"] = [usingGPU]
                 inference_time_df = pd.concat([inference_time_df, inference_time_model], axis=0)
 
                 if device == 'GPU':
                     continue
                 mean_syn, _ = inference_time_tflite(cfg, model_id, model, dummy_input)
-                # inferenceLatencyLite.append(mean_syn)
                 inference_time_model = pd.DataFrame([])
                 inference_time_model['Model Type'] = ['TFLite (CPU)']
                 inference_time_model['Inference Time'] = [mean_syn]
                 inference_time_model["Model"] = [model_id]
-                # inference_time_model["Device"] = "Computer"
-                # inference_time_model["GPU"] = [usingGPU]
                 inference_time_df = pd.concat([inference_time_df, inference_time_model], axis=0)
 
             # Plot the correlation heatmap..........
             plot_dir = Path(f"{source_dir}/../artifacts/plots/data_analysis//")
             plot_dir.mkdir(parents=True, exist_ok=True)
             inference_time_df.to_csv(f"{plot_dir}/scalability_inference_comp_{usingGPU}.csv")
-            # inference_time_df.plot.bar()
-            # plt.savefig(f"{plot_dir}/scalability_inference_comp_{usingGPU}.jpg", dpi=350)
 
 
 # Main function
