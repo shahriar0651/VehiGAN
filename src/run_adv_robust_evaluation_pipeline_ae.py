@@ -135,12 +135,7 @@ def generate_results(cfg: DictConfig) -> None:
         
         perf_comb_all = pd.concat([perf_comb_all,perf_comb], axis = 0, ignore_index=True)
         print("perf_comb_all.shape : ", perf_comb_all.shape)
-        # if perf_tst["fscore"] > 0.00:
-        #     perf_tst_df.loc[noise_dim, num_hid_layers] = perf_tst["fscore"]
-        #     perf_noi_df.loc[noise_dim, num_hid_layers] = perf_noi["fscore"]
-        #     perf_adv_df.loc[noise_dim, num_hid_layers] = perf_adv["fscore"]
-        #     perf_drp_df.loc[noise_dim, num_hid_layers] = perf_tst["fscore"] - perf_adv["fscore"]
-        
+
     # Directories...
     ext = f"{cfg.advType}_{cfg.advFnc}_{cfg.advCap}_{cfg.epsilon}"
     data_dir = cfg.workspace_dir / 'artifacts' / f'results_{version}' / 'advAttacks' / f'adv_performance_drop_ae_{cfg.window}_{ext}.csv'
@@ -151,13 +146,6 @@ if __name__ == '__main__':
     generate_results()
 
 """
-python run_adv_robust_evaluation_pipeline.py version=december_dummy dataset=testing dataset.run_type=unit windows=[10] fast_load=True
-python run_adv_robust_evaluation_pipeline.py version=october_24_wisec_8 dataset=testing dataset.run_type=unit windows=[8] fast_load=True results_only=True
-python run_adv_robust_evaluation_pipeline.py -m version=january_icdcs dataset=testing dataset.run_type=unit windows=[10] fast_load=True advCap=indv,trans advType=fp,fn epsilon=0.00,0.005,0.010,0.015,0.020
-python run_adv_robust_evaluation_pipeline.py -m version=january_icdcs dataset=testing dataset.run_type=unit windows=[10] fast_load=True advCap=trans epsilon=0.00,0.010,0.020,0.03,0.04,0.05
-python run_adv_robust_evaluation_pipeline.py -m version=january_icdcs dataset=testing dataset.run_type=unit windows=[10] fast_load=True advCap=trans epsilon=0.00,0.010,0.020,0.03,0.04,0.05
-python run_adv_robust_evaluation_pipeline.py -m version=january_icdcs dataset=testing dataset.run_type=full windows=[10] fast_load=False advCap=multi evalType=adversarial epsilon=0.00,0.010
-python run_adv_robust_evaluation_pipeline.py -m version=january_icdcs dataset=testing dataset.run_type=unit windows=[10] fast_load=True advCap=multi evalType=adversarial epsilon=0.010
 python run_adv_robust_evaluation_pipeline.py -m version=january_icdcs dataset=testing dataset.run_type=full windows=[10] fast_load=False advCap=multi evalType=adversarial epsilon=0.00,0.005,0.010,0.015,0.020
 python run_adv_robust_evaluation_pipeline.py -m version=january_icdcs dataset=testing dataset.run_type=full windows=[10] fast_load=False advCap=indv,trans,multi evalType=adversarial epsilon=0.00,0.005,0.010,0.015,0.020
 python run_adv_robust_evaluation_pipeline.py -m version=january_icdcs dataset=testing dataset.run_type=unit windows=[10] fast_load=True advCap=indv evalType=adversarial m_max=1 advRandom=False epsilon=0.00, 0.010
