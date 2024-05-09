@@ -1,0 +1,6 @@
+data_type: training
+raw_data_dir: ../../datasets/VASP/ambients
+clean_data_dir: ../../datasets/VASP/ambients/curated/
+run_id: '19777'
+run_type : full #unit 
+unit_samples: 100000 

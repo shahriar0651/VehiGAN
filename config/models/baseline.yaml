@@ -1,0 +1,12 @@
+model_type: baselines
+
+model_List :
+  - 'KNN'
+  - 'GMM'
+
+n_components : 6
+num_jobs : 8
+random_state : 1 
+contamination : 0.01
+use_ae : False
+epochs : 25

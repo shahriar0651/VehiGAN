@@ -1,0 +1,6 @@
+data_type: testing
+raw_data_dir: ../../datasets/VASP/attacks
+clean_data_dir: ../../datasets/VASP/attacks/curated
+run_id : '17721'
+run_type : full # unit 
+unit_samples: 25000

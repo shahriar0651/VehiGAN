@@ -1,0 +1,5 @@
+model_type: wgan
+list_of_num_hid_layers: [3, 4, 5]
+list_of_noise_dim: [8, 16, 32, 48, 64]
+list_of_max_epoch: [25, 50, 75, 100]
+gen_sample_size: 1000

@@ -1,0 +1,28 @@
+name: vehigan
+channels:
+  - defaults
+  - conda-forge
+dependencies:
+  - python=3.10
+  - hydra-core
+  - pip:
+    - dvc
+    - dvc-gdrive
+    - keras==2.10.0
+    - tensorflow==2.10.0
+    - scikit-image
+    - torch 
+    - torchvision
+    - torch-fidelity
+    - numpy
+    - pandas
+    - seaborn==0.13.0
+    - tqdm
+    - hydra-core
+    - scikit-learn
+    - torchmetrics
+    - opencv-python
+    - pyod
+    - osmnx
+    - folium
+    - contextily
