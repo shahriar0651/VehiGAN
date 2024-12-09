@@ -12,42 +12,40 @@ from helper import *
 
 
 @hydra.main(config_path="../config", config_name="config.yaml")
-def wgan_evaluate_pipeline(cfg: DictConfig) -> None:
+def run_ind_detect_evaluation(cfg: DictConfig) -> None:
+
+    """
+    Evaluate individual models and Calculate the correlation
+    """
     # Define directory
     source_dir = Path(__file__).resolve().parent
     cfg.workspace_dir = source_dir.parent
     cfg.models_dir = source_dir / cfg.models_dir
     cfg.scaler_dir = source_dir / cfg.scaler_dir
-
+    cfg.dataset.raw_data_dir = source_dir / cfg.dataset.raw_data_dir
+    cfg.dataset.clean_data_dir = source_dir / cfg.dataset.clean_data_dir
+    os.makedirs(cfg.models_dir, exist_ok=True)
+    os.makedirs(cfg.scaler_dir, exist_ok=True)
     print("source_dir ", source_dir)
     print("cfg.dataset.raw_data_dir: ", cfg.dataset.raw_data_dir)
 
-    cfg.dataset.raw_data_dir = source_dir / cfg.dataset.raw_data_dir
-    cfg.dataset.clean_data_dir = source_dir / cfg.dataset.clean_data_dir
-    
-    print("cfg.dataset.raw_data_dir: ", cfg.dataset.raw_data_dir)
-
     version = cfg.version
-    os.makedirs(cfg.models_dir, exist_ok=True)
-    os.makedirs(cfg.scaler_dir, exist_ok=True)
     found_wgan = False
     found_ae = False
 
     # Run model evaluation for WGAN/Autoencoder models
-    if cfg.models.model_type != 'baselines':
+    if cfg.models.model_type in ['autoencoder', 'wgan']: 
         
         # Running for different window size
         for window in cfg.windows:
-            # print("Window size:", window)
             cfg.window = window
-
             dataset_dict = load_data_create_images(cfg) if not cfg.results_only else {}
-
             model_param = construct_model_cfg(cfg)
+
             wgan_eval_df = pd.DataFrame()
             ae_eval_df = pd.DataFrame()
 
-            # Run load and train for every model
+            # Load and Test Individual Models
             for model_cfg in model_param:
                 model_type = model_cfg.model_type
 
@@ -55,6 +53,7 @@ def wgan_evaluate_pipeline(cfg: DictConfig) -> None:
                 model_id = f"{model_cfg.model_type}_{window}_{model_id}"
                 print("model_id :", model_id)
 
+                # Evaluate Autoencoder
                 if model_type == 'autoencoder':
                     found_ae = True
                     ae_update_flag = False
@@ -73,50 +72,63 @@ def wgan_evaluate_pipeline(cfg: DictConfig) -> None:
 
                     if ae_update_flag:
                         ae_eval_df[model_id] = pd.Series(ae_score)
-
+                
+                # Evaluate WGAN
                 elif model_type == 'wgan':
+                    results_dir = cfg.workspace_dir / 'artifacts' / f'results_{version}'
+                    gen_file_name = results_dir / f"gen_{model_id}_dict.json_dict.json" #FIXME: Remove ..._dict.json
+                    dis_file_name = results_dir / f"dis_{model_id}_dict.json"
+                    
                     found_wgan = True
-                    gen_file_name = cfg.workspace_dir / 'artifacts' / f'results_{version}' / f"gen_{model_id}"
-                    dis_file_name = cfg.workspace_dir / 'artifacts' / f'results_{version}' / f"dis_{model_id}"
 
-                    flag_eval_gen = False
-                    flag_eval_dis = False
+                    # Load scores or set evaluation flags
+                    flag_eval_gen = not gen_file_name.exists()
+                    flag_eval_dis = not dis_file_name.exists()
 
-                    if Path(f"{gen_file_name}_dict.json").exists():
-                        with open(f"{gen_file_name}_dict.json") as fp: 
+                    if not flag_eval_gen:
+                        with open(gen_file_name) as fp:
                             gen_score = json.load(fp)
                         print("Generator metric loaded")
-
-                    else:
-                        flag_eval_gen = True
-
-                    if Path(f"{dis_file_name}_dict.json").exists():
-                        with open(f"{dis_file_name}_dict.json") as fp: 
+                        flag_eval_gen = len(gen_score) == 0
+                    if not flag_eval_dis:
+                        with open(dis_file_name) as fp:
                             dis_score = json.load(fp)
-                        print("Discriminator metric loaded!!!")
-                    else:
-                        flag_eval_dis = True
+                        print("Discriminator metric loaded!!!", dis_score)
+                        flag_eval_dis = len(dis_score) == 0  # Re-evaluate if dis_score is empty
 
-                    if (flag_eval_dis or flag_eval_gen) and not cfg.results_only:
+                    if (flag_eval_dis or flag_eval_gen) and not cfg.results_only or cfg.reeval_gen or cfg.reeval_dis:
                         print("Getting model..")
                         wgan, cbk, remaining_epoch = get_ind_model(cfg, model_cfg)
                         if remaining_epoch > 0:
                             print("Model not found")
                             continue
-                        if flag_eval_dis:
+                        
+                        if flag_eval_dis or cfg.reeval_dis:
                             dis_score = evaluate_discriminator(cfg, model_cfg, wgan, dataset_dict, dis_file_name)
-                            flag_eval_dis = False
-                        if flag_eval_gen:
+                            print("Complete: dis_score", dis_score)
+
+                        if flag_eval_gen or cfg.reeval_gen:
                             gen_score = evaluate_generator(cfg, model_cfg, wgan, dataset_dict, gen_file_name)
-                            flag_eval_gen = False
+                            print("Complete: gen_score", gen_score)
 
-                    
-                    if not (flag_eval_gen and flag_eval_dis):
-                        dis_score = pd.DataFrame(dis_score).T
-                        gen_score['AUROC'] = dis_score['AUROC'].mean()
-                        gen_score['AUPRC'] = dis_score['AUPRC'].mean()
+                    else:
+                        print("Skipping model evaluation")
 
+                    # Update evaluation DataFrame
+                    if gen_score and dis_score:
+                        dis_score_df = pd.DataFrame(dis_score).T
+                        gen_score['AUROC'] = dis_score_df['AUROC'].mean()
+                        gen_score['AUPRC'] = dis_score_df['AUPRC'].mean()
+
+                        # TODO: Update sign of scores
+                        gen_score['SS_FAT_Score'] = - gen_score['SS_FAT_Score']
+                        gen_score['SS_FAS_Score'] = - gen_score['SS_FAS_Score']
+                        gen_score['SS_FAC_Score'] = - gen_score['SS_FAC_Score']
+                        # gen_score['TS_AD_Score'] = gen_score['TS_AD_Score']
+                        
                         wgan_eval_df[model_id] = pd.Series(gen_score)
+
+        
         if found_wgan:
             # Analyze the performance of WGAN
             # Analyze correlation of gen score and disc scores
@@ -127,7 +139,9 @@ def wgan_evaluate_pipeline(cfg: DictConfig) -> None:
             perf_gen_dis_scld = pd.DataFrame(StandardScaler().fit_transform(perf_gen_dis), columns=perf_gen_dis.columns)
             perf_gen_dis_scld.index = perf_gen_dis.index
             
-            perf_gen_dis_scld['GScore'] = np.mean(perf_gen_dis_scld[["W_Distance", "FID_Score", "KID_Score"]].values, axis = 1)
+            perf_gen_dis_scld['GScore'] = np.mean(perf_gen_dis_scld[["SS_TSTR_Score"]].values, axis = 1)
+            # perf_gen_dis_scld['GScore'] = np.mean(perf_gen_dis_scld[["IM_W_Distance", "IM_FID_Score", "IM_KID_Score"]].values, axis = 1)
+            
             perf_gen_dis_scld = perf_gen_dis_scld.sort_values(['GScore'])
             corr_gen_dis = perf_gen_dis_scld.corr() #TODO: Try different methods
 
@@ -140,7 +154,7 @@ def wgan_evaluate_pipeline(cfg: DictConfig) -> None:
             corr_gen_dis.to_csv(dir_corr_gen_dis)
             # ...
             print(perf_gen_dis)
-            print(corr_gen_dis)
+            print(corr_gen_dis.T)
 
     # Run model evaluation for baseline models
     elif cfg.models.model_type == 'baselines':
@@ -156,11 +170,4 @@ def wgan_evaluate_pipeline(cfg: DictConfig) -> None:
 
 # Main function
 if __name__ == '__main__':
-    wgan_evaluate_pipeline()
-
-"""
-nohup python run_ind_evaluation_pipeline.py -m version=january_icdcs windows=[8],[10],[12] results_only=false dataset=testing >/dev/null 2>&1 &
-nohup python run_ind_evaluation_pipeline.py -m version=january_icdcs windows=[10] results_only=false dataset=testing >/dev/null 2>&1 &
-python run_ind_evaluation_pipeline.py -m version=january_icdcs_na windows=[10] results_only=false dataset=testing selected_attacks=["No Attack"]
-nohup python run_ind_evaluation_pipeline.py version=january_icdcs models=autoencoder windows=[10] results_only=false dataset=testing >/dev/null 2>&1 &
-"""
+    run_ind_detect_evaluation()

@@ -26,3 +26,4 @@ dependencies:
     - osmnx
     - folium
     - contextily
+    - tsfel==0.1.9

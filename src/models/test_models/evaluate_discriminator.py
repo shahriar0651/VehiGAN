@@ -6,8 +6,8 @@ from sklearn.metrics import roc_auc_score, average_precision_score
 
 def evaluate_discriminator(cfg, model_cfg, wgan, dataset_dict, dis_file_name) -> dict:
 
+    print("Starting evaluation of D......")
     eval_dict = {}
-
     for attack in tqdm(dataset_dict.keys()):
         if attack == "No Attack": #FIXME: Remove condition
             continue
@@ -29,6 +29,7 @@ def evaluate_discriminator(cfg, model_cfg, wgan, dataset_dict, dis_file_name) ->
                 "AUPRC": auprc_score
                 }
             eval_dict[attack] = eval_dict_attack
+            print(eval_dict_attack)
         except:
             print("No attack traces!!!")
 

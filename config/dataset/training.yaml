@@ -1,6 +1,6 @@
 data_type: training
-raw_data_dir: ../../datasets/VASP/ambients
-clean_data_dir: ../../datasets/VASP/ambients/curated/
+raw_data_dir: ../../datasets/MisbehaviorX/ambients
+clean_data_dir: ../../datasets/MisbehaviorX/ambients/curated/
 run_id: '19777'
-run_type : full #unit 
-unit_samples: 100000 
+run_type : unit #full #unit 
+unit_samples: 100000 #100000 #vs 1018098

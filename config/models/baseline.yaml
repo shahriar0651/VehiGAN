@@ -1,8 +1,14 @@
 model_type: baselines
 
 model_List :
+  - 'PCA'
+  - 'MCD'
   - 'KNN'
+  - 'LOF'
+  - 'IForest'
   - 'GMM'
+  - 'ECOD'
+  - 'DeepSVDD'
 
 n_components : 6
 num_jobs : 8
