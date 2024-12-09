@@ -61,7 +61,7 @@ def fix_attack_values(df_raw, faulty_feat):
     return df_raw
 
 @hydra.main(config_path="../config", config_name="config.yaml")
-def create_clean_dataset(cfg: DictConfig) -> None:
+def run_data_curation_pipeline(cfg: DictConfig) -> None:
     # Define directory
     source_dir = Path(__file__).resolve().parent
     print("source_dir ", source_dir)
@@ -286,4 +286,4 @@ def create_clean_dataset(cfg: DictConfig) -> None:
 
 # Main function
 if __name__ == "__main__":
-    create_clean_dataset()
+    run_data_curation_pipeline()

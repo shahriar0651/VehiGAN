@@ -1,167 +1,134 @@
-# Directories
-workspace_dir: 'none' # Directory for workspace
-models_dir: '../artifacts/models' # Directory for storing models
-scaler_dir: '../artifacts/scaler' # Directory for scaler data
-results_dir: '../artifacts/results' # Directory for results
+features: ['speed_x', 'del_pos_x', 'speed_y', 'del_pos_y', 
+            'accel_x', 'del_speed_x', 'accel_y', 'del_speed_y', 
+            'del_heading_x', 'yaw_rate_x', 'del_heading_y', 'yaw_rate_y']
+labels: ['id', 'time_chunk', 'attack_gt', 'attack_type', 'attack_index', 'attack_name']
 
+results_only: False
+reeval_gen: False
+reeval_dis : False
+version: tcps_november 
+retrain : True
+verbose : False
+fast_load : False
+device : gpu
+cuda_devices : '-1' # '0' or '-1'
+scale_repeat : 1000
+window: 0 # dummy
+batch_size: 128
 
-# Evaluation setting
-results_only: False # Flag indicating whether to output only results
-version: today # Evaluation version
-retrain: True # Flag indicating whether to retrain the model
-verbose: False # Flag indicating verbosity
-fast_load: False # Flag indicating fast (partially) loading dataset
-device: gpu # Device for computation
-cuda_devices: '-1'  # GPU device(s) to use, '-1' for CPU
-scale_repeat: 1000  # Repeat count for scalability analysis
-windows: # Window sizes for data processing
-  - 10
-window: 0  # Dummy variable to be assigned dynamically
-batch_size: 128 # Batch size for training
-learning_rate_ae: 0.001 # Learning rate for autoencoder
-learning_rate_wgan: 0.001 # Learning rate for WGAN
-loss: # Loss functions
-  ae: 'mse' # Loss function for autoencoder
-  wgan: 'none' # Loss function for WGAN
-defaults: # Default configurations
+learning_rate_ae: 0.001
+learning_rate_wgan: 0.001
+
+windows: [10]
+
+loss:
+  ae: 'mse'
+  wgan: 'none'
+
+defaults:
   - dataset: training
   - models: wgan
-evalType: benign # Type of evaluation
-advCap: indv # Adversarial capacity
-advType: fp # Adversarial type
-advFnc: fgsm # Adversarial function
-advRandom: False # Randomness of adversarial samples
-advSamples: 10 # Number of adversarial samples
-k_max: 10 # Maximum k value
-m_max: 10 # Maximum m value
-th_percent: 99.0 # Threshold percentage
-epsilon: 0.01 # Epsilon value
-scaler: 'standard' # Scaler type
-metrics: # Metrics to be evaluated
-  - 'auroc'
-  - 'auprc'
-  - 'fpr'
-  - 'fnr'
-  - 'pre'
-  - 'rec'
-  - 'fscore'
 
-# Features
-features: # Features for the defense
-  - 'speed_x'
-  - 'del_pos_x'
-  - 'speed_y'
-  - 'del_pos_y'
-  - 'accel_x'
-  - 'del_speed_x'
-  - 'accel_y'
-  - 'del_speed_y'
-  - 'del_heading_x'
-  - 'yaw_rate_x'
-  - 'del_heading_y'
-  - 'yaw_rate_y'
-labels: # Labels for the data
-  - 'id'
-  - 'time_chunk'
-  - 'attack_gt'
-  - 'attack_type'
-  - 'attack_index'
-  - 'attack_name'
 
-time_feat: 'msg_generation_time' # Time feature
-vehicle_type: 'rv' # Type of vehicle
-label: 'attack_gt' # Label for attacks
-file_attr: # File attributes
-  - 'msg_generation_time'
-  - 'attack_gt'
-  - 'attack_type'
-  - 'attack_index'
-  - 'attack_name'
-vehicle_feats: # Vehicle features
-  - 'id'
-  - 'pos_x'
-  - 'pos_y'
-  - 'pos_z'
-  - 'speed'
-  - 'accel'
-  - 'heading'
-  - 'yaw_rate'
-  - 'length'
-  - 'width'
-  - 'height'
-mutual_feats: # Mutual features
-  - 'rv_hv_distance'
-  - 'rssi'
-  - 'wsm_data'
-  - 'attack_gt'
-  - 'attack_type'
-vectors: # Vectors
-  - 'speed'
-  - 'accel'
-  - 'heading'
-  - 'yaw_rate'
-vis_feat: # Visual features
-  - 'speed_x'
-  - 'del_pos_x'
-  - 'speed_y'
-  - 'del_pos_y'
-  - 'accel_x'
-  - 'del_speed_x'
-  - 'accel_y'
-  - 'del_speed_y'
-  - 'del_heading_x'
-  - 'yaw_rate_x'
-  - 'del_heading_y'
-  - 'yaw_rate_y'
-feat_not_for_scaling: # Features not for scaling
-  - 'id'
-  - 'msg_generation_time'
-  - 'attack_gt'
-  - 'attack_type'
-  - 'attack_index'
-  - 'attack_name'
-  - 'time_chunk'
+workspace_dir: 'none'
+models_dir: ../artifacts/models
+scaler_dir: ../artifacts/scaler
+results_dir: ../artifacts/results
 
-# Attacks
-selected_attacks: # Selected attack types
-  # Position attacks
-  - 'RandomPosition'
-  - 'RandomPositionOffset'
-  - 'PlaygroundConstantPosition'
-  - 'ConstantPositionOffset'
-  # Speed attacks
-  - 'RandomSpeed'
-  - 'RandomSpeedOffset'
-  - 'ConstantSpeed'
-  - 'ConstantSpeedOffset'
-  - 'HighSpeed'
-  - 'LowSpeed'
-  # Acceleration attacks
-  - 'RandomAcceleration'
-  - 'RandomAccelerationOffset'
-  - 'ConstantAcceleration'
-  - 'ConstantAccelerationOffset'
-  - 'HighAcceleration'
-  - 'LowAcceleration'
-  # Heading attacks
-  - 'RandomHeading'
-  - 'RandomHeadingOffset'
-  - 'ConstantHeading'
-  - 'ConstantHeadingOffset'
-  - 'OppositeHeading'
-  - 'PerpendicularHeading'
-  - 'RotatingHeading'
-  # Yaw-rate attacks
-  - 'RandomYawRate'
-  - 'RandomYawRateOffset'
-  - 'ConstantYawRate'
-  - 'ConstantYawRateOffset'
-  - 'HighYawRate'
-  - 'LowYawRate'
-  # Heading and Yaw-rate matching attacks
-  - 'RandomHeadingYawRate'
-  - 'RandomHeadingYawRateOffset'
-  - 'ConstantHeadingYawRate'
-  - 'ConstantHeadingYawRateOffset'
-  - 'HighHeadingYawRate'
-  - 'LowHeadingYawRate'
+evalType: benign
+advCap : indv
+advType : fp
+advFnc : fgsm
+advRandom : False
+advSamples : 100
+k_max : 10
+m_max : 10
+
+th_percent : 95.0
+epsilon : 0.01
+
+metrics: [
+  'auroc',
+  'auprc',
+  'fpr',
+  'fnr',
+  'pre',
+  'rec',
+  'fscore']
+scaler : 'standard'
+
+selected_attacks : [
+  'No Attack',
+  # // Position attacks 
+  'RandomPosition',
+  'RandomPositionOffset',
+  'PlaygroundConstantPosition',
+  'ConstantPositionOffset',
+
+  # // Speed attacks
+  'RandomSpeed',
+  'RandomSpeedOffset',
+  'ConstantSpeed',
+  'ConstantSpeedOffset',
+  'HighSpeed',
+  'LowSpeed',
+
+  # // Acceleration attacks
+
+  'RandomAcceleration',
+  'RandomAccelerationOffset',
+  'ConstantAcceleration',
+  'ConstantAccelerationOffset',
+  'HighAcceleration',
+  'LowAcceleration',
+
+  # // Heading attacks
+  'RandomHeading',
+  'RandomHeadingOffset',
+  'ConstantHeading',
+  'ConstantHeadingOffset',
+  'OppositeHeading',
+  'PerpendicularHeading',
+  'RotatingHeading',
+
+  # // Yaw-rate attacks
+  'RandomYawRate',
+  'RandomYawRateOffset',
+  'ConstantYawRate',
+  'ConstantYawRateOffset',
+  'HighYawRate',
+  'LowYawRate',
+
+  # // Heading and Yaw-rate matching attacks
+  'RandomHeadingYawRate',
+  'RandomHeadingYawRateOffset',
+  'ConstantHeadingYawRate',
+  'ConstantHeadingYawRateOffset',
+  'HighHeadingYawRate',
+  'LowHeadingYawRate',
+]
+
+
+# Configuration for data curation ........................
+time_feat : 'msg_generation_time'
+vehicle_type : 'rv'
+label : 'attack_gt'
+file_attr : ['msg_generation_time', 'attack_gt', 'attack_type', 'attack_index', 'attack_name']
+
+vehicle_feats : ['id', 'pos_x', 'pos_y', 'pos_z', 'speed', 'accel', 'heading', 'yaw_rate', 'length', 'width', 'height']
+mutual_feats : ['rv_hv_distance', 'rssi', 'wsm_data', 'attack_gt', 'attack_type']
+vectors : ['speed', 'accel', 'heading', 'yaw_rate']
+vis_feat : ['speed_x', 'del_pos_x', 'speed_y', 'del_pos_y', 
+            'accel_x', 'del_speed_x', 'accel_y', 'del_speed_y', 
+            'del_heading_x', 'yaw_rate_x', 'del_heading_y', 'yaw_rate_y']
+
+feat_not_for_scaling : [
+            "id",
+            "msg_generation_time",
+            "attack_gt",
+            "attack_type",
+            "attack_index",
+            "attack_name",
+            "time_chunk",
+        ]
+

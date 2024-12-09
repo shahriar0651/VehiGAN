@@ -195,6 +195,27 @@ class GANMonitor(keras.callbacks.Callback):
             generated_images = self.model.generator(random_latent_vectors)
             generated_images = (generated_images * 127.5) + 127.5
 
+
+            # fig, ax = plt.subplots(1, 3, figsize = (10,3))
+            # for i in range(self.num_img):
+            #     img = generated_images[i].numpy()
+            #     ax[i].imshow(img)
+            # fig.suptitle(f"Fake Image Generated at Epoch: {epoch}")
+            # plt.tight_layout()
+            # plt.savefig("plots//generated_images//generated_img_{epoch}_{i}.png".format(epoch=epoch, i=i))
+            # plt.show()
+
+        # if epoch%25 ==0:
+            # self.model.generator.save(f'models/wgan_generator_{epoch}')
+            # self.model.discriminator.save(f'models/wgan_discriminator_{epoch}')
+            # generator_dir = f'{model_root_dir}/{model_type}-generator/gen_{model_type}_{window}_{num_signals}_{num_hid_layers}_{final_epochs}'
+            # discriminator_dir = f'{model_root_dir}/{model_type}-discriminator/dis_{model_type}_{window}_{num_signals}_{num_hid_layers}_{final_epochs}'
+
+
+
+# Define the loss functions for the discriminator,
+# which should be (fake_loss - real_loss).
+# We will add the gradient penalty later to this loss function.
 def discriminator_loss(real_img, fake_img):
     real_loss = tf.reduce_mean(real_img)
     fake_loss = tf.reduce_mean(fake_img)
@@ -228,7 +249,15 @@ def get_wgan(cfg, model_cfg, models_dict):
                 g_model = get_G(noise_dim, num_hid_layers, window)
                 d_model = get_D(window, num_signals, num_hid_layers)
                 print("Creating new model")
+            # else: #FIXME : Add try except if model does not exist
+            #     g_model = keras.models.load_model(models_dict["generator"])
+            #     d_model = keras.models.load_model(models_dict["discriminator"])
+            #     print(f"Loaded trained model")
 
+            # Set the number of epochs for trainining.
+            ## Train the end-to-end model
+            # Instantiate the optimizer for both networks
+            # (learning_rate=0.0002, beta_1=0.5 are recommended)
             generator_optimizer = keras.optimizers.Adam(
                 learning_rate=learning_rate_wgan, beta_1=0.5, beta_2=0.9
             )
@@ -265,7 +294,15 @@ def get_wgan(cfg, model_cfg, models_dict):
             g_model = get_G(noise_dim, num_hid_layers, window)
             d_model = get_D(window, num_signals, num_hid_layers)
             print("Creating new model")
+        # else: #FIXME : Add try except if model does not exist
+        #     g_model = keras.models.load_model(models_dict["generator"])
+        #     d_model = keras.models.load_model(models_dict["discriminator"])
+        #     print(f"Loaded trained model")
 
+        # Set the number of epochs for trainining.
+        ## Train the end-to-end model
+        # Instantiate the optimizer for both networks
+        # (learning_rate=0.0002, beta_1=0.5 are recommended)
         generator_optimizer = keras.optimizers.Adam(
             learning_rate=learning_rate_wgan, beta_1=0.5, beta_2=0.9
         )

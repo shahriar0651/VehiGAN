@@ -47,12 +47,20 @@ def scale_dataset(data_type, features, labels, df_time, scaler_dir):
     return df_time_scaled
 
 
-def create_rolling_windows_stack(array, window_size):
-    num_windows = array.shape[0] - window_size + 1
+def create_rolling_windows_stack(array, window_size, step_size=1):
+    num_windows = (array.shape[0] - window_size) // step_size + 1
     shape = (num_windows, window_size, array.shape[1])
-    strides = (array.strides[0],) + array.strides
-    stacked_windows = np.lib.stride_tricks.as_strided(array, shape=shape, strides=strides)
+    strides = (step_size * array.strides[0], array.strides[0], array.strides[1])
+    stacked_windows =  np.lib.stride_tricks.as_strided(array, shape=shape, strides=strides)
     return stacked_windows
+
+
+# def create_rolling_windows_stack(array, window_size):
+#     num_windows = array.shape[0] - window_size + 1
+#     shape = (num_windows, window_size, array.shape[1])
+#     strides = (array.strides[0],) + array.strides
+#     stacked_windows = np.lib.stride_tricks.as_strided(array, shape=shape, strides=strides)
+#     return stacked_windows
 
 def create_image_labels(df_time, window, features, labels, selected_features):
 
@@ -64,7 +72,12 @@ def create_image_labels(df_time, window, features, labels, selected_features):
         list_of_chunks = df_vehicle['time_chunk'].unique()
 
         for chunk in list_of_chunks:
+
             df_vehicle_chunk = df_vehicle[df_vehicle['time_chunk'] == chunk]
+            # print(f"Before: {df_vehicle_chunk.shape}")
+            # df_vehicle_chunk = df_vehicle_chunk.dropna()
+            # print(f"After: {df_vehicle_chunk.shape}")
+
             if df_vehicle_chunk.shape[0] < window:
                 continue
             x_data = create_rolling_windows_stack(df_vehicle_chunk[features].values, window)
@@ -88,6 +101,7 @@ def load_data_create_images(cfg, load_only = False):
     data_type = cfg.dataset.data_type
     raw_data_dir = cfg.dataset.raw_data_dir
     clean_data_dir = cfg.dataset.clean_data_dir
+    print("clean_data_dir :", clean_data_dir)
     run_id = cfg.dataset.run_id
     window = cfg.window
     features = cfg.features

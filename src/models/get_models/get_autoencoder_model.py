@@ -57,7 +57,8 @@ def create_autoconder(cfg, model_cfg):
     # return encoder, decoder
     # define input to the model:
     x = keras.Input(shape=(window, num_signals, 1))
-    return keras.Model(x, decoder(encoder(x)))
+    autoencoder = keras.Model(x, decoder(encoder(x)))
+    return autoencoder 
 
 def get_autoencoder(cfg, model_cfg, models_dict=None):
     

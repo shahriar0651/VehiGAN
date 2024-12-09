@@ -1,6 +1,6 @@
 data_type: testing
-raw_data_dir: ../../datasets/VASP/attacks
-clean_data_dir: ../../datasets/VASP/attacks/curated
+raw_data_dir: ../../datasets/MisbehaviorX/attacks
+clean_data_dir: ../../datasets/MisbehaviorX/attacks/curated
 run_id : '17721'
-run_type : full # unit 
+run_type : unit #full # unit 
 unit_samples: 25000

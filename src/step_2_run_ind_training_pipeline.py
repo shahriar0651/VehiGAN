@@ -13,7 +13,7 @@ from helper import *
 
 
 @hydra.main(config_path="../config", config_name="config.yaml")
-def model_training_pipeline(cfg: DictConfig) -> None:
+def run_ind_training_pipeline(cfg: DictConfig) -> None:
 
     #TODO: Set memory grouth....
     gpus = tf.config.experimental.list_physical_devices('GPU')
@@ -74,13 +74,5 @@ def model_training_pipeline(cfg: DictConfig) -> None:
 
 # Main function
 if __name__ == '__main__':
-    model_training_pipeline()
-    # nohup python run_ind_training_pipeline.py models=wgan dataset.run_type=unit windows=[8] >/dev/null 2>&1 &
-    """
-    nohup python run_ind_training_pipeline.py models=wgan dataset.run_type=unit windows=[8] >/dev/null 2>&1 &
-    nohup python run_ind_training_pipeline.py models=autoencoder dataset.run_type=full windows=[10] >/dev/null 2>&1 &
-    python run_ind_training_pipeline.py models=autoencoder dataset.run_type=full windows=[10]
+    run_ind_training_pipeline()
 
-    nohup python run_ind_training_pipeline.py models=autoencoder dataset.run_type=unit windows=[10] >/dev/null 2>&1 &
-
-    """
