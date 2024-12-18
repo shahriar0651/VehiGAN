@@ -26,8 +26,6 @@ def run_ind_detect_evaluation(cfg: DictConfig) -> None:
     cfg.dataset.clean_data_dir = source_dir / cfg.dataset.clean_data_dir
     os.makedirs(cfg.models_dir, exist_ok=True)
     os.makedirs(cfg.scaler_dir, exist_ok=True)
-    print("source_dir ", source_dir)
-    print("cfg.dataset.raw_data_dir: ", cfg.dataset.raw_data_dir)
 
     version = cfg.version
     found_wgan = False
@@ -40,8 +38,9 @@ def run_ind_detect_evaluation(cfg: DictConfig) -> None:
         for window in cfg.windows:
             cfg.window = window
             dataset_dict = load_data_create_images(cfg) if not cfg.results_only else {}
+            print("dataset_dict: ", dataset_dict.keys())
             model_param = construct_model_cfg(cfg)
-
+            
             wgan_eval_df = pd.DataFrame()
             ae_eval_df = pd.DataFrame()
 

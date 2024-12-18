@@ -64,7 +64,6 @@ def fix_attack_values(df_raw, faulty_feat):
 def run_data_curation_pipeline(cfg: DictConfig) -> None:
     # Define directory
     source_dir = Path(__file__).resolve().parent
-    print("source_dir ", source_dir)
     # print("cfg.dataset.raw_data_dir: ", cfg.dataset.raw_data_dir)
     cfg.dataset.raw_data_dir = source_dir / cfg.dataset.raw_data_dir
     cfg.dataset.clean_data_dir = source_dir / cfg.dataset.clean_data_dir
