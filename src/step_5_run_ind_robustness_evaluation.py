@@ -38,7 +38,6 @@ def run_ind_robustness_evaluation(cfg: DictConfig) -> None:
     cfg.scaler_dir = source_dir / cfg.scaler_dir
     cfg.dataset.raw_data_dir = source_dir / cfg.dataset.raw_data_dir
     cfg.dataset.clean_data_dir = source_dir / cfg.dataset.clean_data_dir
-    print("cfg.dataset.clean_data_dir :", cfg.dataset.clean_data_dir )
     os.makedirs(cfg.models_dir, exist_ok=True)
     os.makedirs(cfg.scaler_dir, exist_ok=True)
     

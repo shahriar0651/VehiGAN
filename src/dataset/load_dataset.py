@@ -20,15 +20,11 @@ def load_data(file_paths, selected_features, run_id):
         if run_id in file_name:
             selected_file_paths.append(file_path)
     
-    print("selected_file_path: ", selected_file_paths)
     df_time = pd.read_csv(selected_file_paths[0], index_col=0)
-    print(df_time.columns)
     df_time = df_time[selected_features]
     return df_time
 
 def scale_dataset(data_type, features, labels, df_time, scaler_dir):
-    print(data_type)
-
     feat_code = ("").join([f[0] for f in features])
     scaler_name = f"scaler_{feat_code}.save" 
     scaler_file_dir = scaler_dir / scaler_name
@@ -101,7 +97,6 @@ def load_data_create_images(cfg, load_only = False):
     data_type = cfg.dataset.data_type
     raw_data_dir = cfg.dataset.raw_data_dir
     clean_data_dir = cfg.dataset.clean_data_dir
-    print("clean_data_dir :", clean_data_dir)
     run_id = cfg.dataset.run_id
     window = cfg.window
     features = cfg.features
@@ -113,13 +108,10 @@ def load_data_create_images(cfg, load_only = False):
 
     if run_type == 'unit':
         num_of_samples = int(cfg.dataset.unit_samples)
-
-    print("clean_data_dir: ", clean_data_dir)
     
     file_paths = get_list_of_files(data_type, clean_data_dir)
     df_time = load_data(file_paths, selected_features, run_id)
     df_time = scale_dataset(data_type, features, labels, df_time, scaler_dir)
-    print(df_time.columns)
 
     print("Total attacks in the dataset: ", df_time["attack_name"].unique().shape)
     if cfg.fast_load == True:
