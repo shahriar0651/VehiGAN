@@ -349,7 +349,7 @@ def calculate_rates(y_true, y_pred):
 def performance_metrics(y_test, y_pred):
     print(f"Shape: {y_test.shape}, {y_pred.shape}")
     pre, rec, fscore, support = precision_recall_fscore_support(y_test, y_pred, average='binary')
-    tpr, fpr, tnr, tnr = calculate_rates(y_test, y_pred)
+    tpr, fpr, tnr, fnr = calculate_rates(y_test, y_pred)
     performance = {
         "precision": pre,
         "recall": rec,
@@ -358,7 +358,7 @@ def performance_metrics(y_test, y_pred):
         "TPR": tpr,
         "FPR": fpr,
         "TNR": tnr,
-        "FNR": tnr
+        "FNR": fnr
     }  
     # print(f"{model_id} : ", performance)
     return performance
@@ -380,21 +380,6 @@ def get_performance_ae(model_id, model, X_test, y_test, p_ths):
     y_pred = (prediction > p_ths).astype(int)
     performance = performance_metrics(y_test, y_pred)
     return performance 
-    # pre, rec, fscore, support = precision_recall_fscore_support(y_test, y_pred, average='binary')
-    # tpr, fpr, tnr, tnr = calculate_rates(y_test, y_pred)
-    # performance = {
-    #     "precision": pre,
-    #     "recall": rec,
-    #     "fscore": fscore,
-    #     "support": support,
-    #     "TPR": tpr,
-    #     "FPR": fpr,
-    #     "TNR": tnr,
-    #     "FNR": tnr
-    # }  
-    # # print(f"{model_id} : ", performance)
-    # return performance
-
 
 def save_adversarial_data(cfg, advCap_model, model_id, X_adv, y_test):
     ext = f"{cfg.advType}_{cfg.advFnc}_{cfg.advCap}_{cfg.epsilon}_{model_id}_{advCap_model}_{cfg.advSamples}"
